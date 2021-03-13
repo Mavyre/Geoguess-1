@@ -48,12 +48,12 @@ const firebaseConfig = {
     apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
     authDomain:
         process.env.VUE_APP_FIREBASE_AUTH_DOMAIN ||
-        process.env.VUE_APP_FIREBASE_PROJECT_ID + '.firebaseapp.com',
+        process.env.VUE_APP_FIREBASE_PROJECT_ID + '-default-rtdb.europe-west1.firebasedatabase.app',
     databaseURL:
         process.env.VUE_APP_FIREBASE_DATABASE_URL ||
         'https://' +
             process.env.VUE_APP_FIREBASE_PROJECT_ID +
-            '.firebaseio.com',
+            '-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
     storageBucket:
         process.env.VUE_APP_STORAGE_BUCKET ||

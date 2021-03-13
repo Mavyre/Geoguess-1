@@ -3,14 +3,18 @@
         :value="this.visibility"
         @input="$emit('change-visibility')"
         scrollable
+        :fullscreen="$viewport.width < 450"
     >
         <v-card class="dialog-customs">
+            <v-btn class="close-btn" icon @click="$emit('change-visibility')">
+                <v-icon>mdi-close</v-icon>
+            </v-btn>
             <v-card-title>
                 <p>{{ $t('DialogCustomMap.title') }}</p>
             </v-card-title>
             <v-card-text>
-                <v-row no-gutters>
-                    <v-col md="5" class="mr-6">
+                <v-row no-gutters class="dialog-customs__row">
+                    <v-col md="5" sm="12" class="mr-6">
                         <v-alert
                             type="error"
                             v-if="isValidGeoJson === false"
@@ -23,13 +27,23 @@
                             :center="{ lat: 10, lng: 10 }"
                             :zoom="1"
                             ref="mapRef"
-                            map-type-id="terrain"
+                            map-type-id="roadmap"
                             style="width: 100%; height: 500px"
                             :options="{
                                 gestureHandling: 'greedy',
                             }"
                         >
                         </GmapMap>
+                        <v-row>
+                            <v-btn
+                                class="mt-6 mr-auto ml-auto"
+                                @click="saveGeoJson"
+                                color="secondary"
+                            >
+                                <v-icon left dark> mdi-cloud-download </v-icon>
+                                {{ $t('DialogCustomMap.download') }}
+                            </v-btn>
+                        </v-row>
                     </v-col>
 
                     <v-col>
@@ -83,8 +97,8 @@
             </v-card-text>
             <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn dark color="#43B581" @click="$emit('change-visibility')">
-                    OK
+                <v-btn dark color="primary" @click="$emit('change-visibility')">
+                    {{ $t('DialogCustomMap.OK') }}
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -94,9 +108,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { validURL } from '@/utils';
-import { isGeoJSONValid } from '../../utils';
-
-const google = window.google;
+import { download, isGeoJSONValid } from '../../utils';
 
 export default {
     name: 'DialogCustomMap',
@@ -134,12 +146,37 @@ export default {
                 map.data.toGeoJson((geoJson) => this.setGeoJson(geoJson));
             });
         },
+        saveGeoJson() {
+            download(
+                this.geoJsonString,
+                'geoguessMap_' + new Date().toISOString() + '.geojson',
+                'application/vnd.geo+json'
+            );
+        },
+    },
+    async mounted() {
+        await this.$gmapApiPromiseLazy();
+        if ('launchQueue' in window) {
+            launchQueue.setConsumer((launchParams) => {
+                if (
+                    !Array.isArray(launchParams.files) ||
+                    launchParams.files.length !== 1
+                ) {
+                    return;
+                }
+                launchParams.files[0].getFile().then((f) => {
+                    this.file = f;
+                });
+            });
+        }
     },
     updated() {
         if (!this.initMap) {
             this.$nextTick(() => {
                 if (this.$refs.mapRef)
                     this.$refs.mapRef.$mapPromise.then((map) => {
+                        const streetViewLayer = new google.maps.StreetViewCoverageLayer();
+                        streetViewLayer.setMap(map);
                         let data = new google.maps.Data({
                             map: map,
                         });
@@ -249,5 +286,14 @@ const geoJsonExample = `{
 <style lang="scss" scoped>
 .dialog-customs {
     background: #fffaec;
+}
+
+@media (max-width: 400px) {
+    .v-card__text {
+        width: calc(100% - 25px);
+    }
+    .dialog-customs__row {
+        display: block;
+    }
 }
 </style>

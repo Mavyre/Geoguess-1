@@ -1,16 +1,15 @@
 <template>
-    <div class="home-page">
-        <Header />
+    <ContentPage class="home-page">
         <section class="home-page__main">
             <v-container class="home-page__main__container" fluid>
-                <v-layout row class="home-page__main__layout">
+                <v-layout class="home-page__main__layout">
                     <div class="home-page__traveler-container">
                         <img
                             class="home-page__traveler-img"
                             src="../assets/home/traveller.svg"
                         />
                     </div>
-                    <v-layout row class="home-page__main__content">
+                    <v-layout class="home-page__main__content">
                         <div class="box">
                             <SearchBox />
                         </div>
@@ -22,27 +21,23 @@
             </v-btn>
         </section>
         <section id="maps">
-            <v-row>
-                <v-col v-for="(map, index) in maps" v-bind:key="index">
-                    <MapCard :map="map" />
-                </v-col>
-            </v-row>
+            <MapCard
+                :map="map"
+                v-for="(map, index) in maps"
+                v-bind:key="index"
+            />
         </section>
-
-        <Footer />
-    </div>
+    </ContentPage>
 </template>
 
 <script>
-import Header from '@/components/home/Header';
 import SearchBox from '@/components/home/SearchBox';
-import Footer from '@/components/home/Footer';
+import ContentPage from '@/components/page/ContentPage';
 import MapCard from '@/components/home/maps/MapCard';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     components: {
-        Header,
-        Footer,
+        ContentPage,
         SearchBox,
         MapCard,
     },
@@ -75,12 +70,19 @@ export default {
         this.getListMaps();
     },
     methods: { ...mapActions(['getListMaps']) },
-    computed: { ...mapGetters(['maps']) },
+    computed: {
+        ...mapGetters(['maps']),
+    },
 };
 </script>
 
 <style scoped lang="scss">
 .home-page {
+    .demo-alert {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+    }
     background-color: #ded3af;
     .home-page__main {
         position: relative;
@@ -99,7 +101,7 @@ export default {
                 .box {
                     margin: 28vh auto;
                     width: 35vw;
-                    min-width: 400px;
+                    max-width: 100%;
                 }
 
                 .home-page__main__content {
@@ -129,18 +131,57 @@ export default {
         }
     }
     #maps {
-        padding: 2% 5%;
+        padding: 3rem 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        column-gap: 30px;
+        row-gap: 1.5rem;
+        justify-items: center;
     }
 }
-
+@media (max-width: 1100px) and (min-width: 600px) {
+    .home-page
+        .home-page__main
+        .home-page__main__container
+        .home-page__main__layout
+        .box {
+        width: 60vw;
+    }
+}
 @media (max-width: 660px) {
     .home-page {
         background-color: #ded3af;
-        .home-page__main__container {
+        .home-page__main .home-page__main__container {
             .home-page__main__layout {
                 flex-direction: column-reverse;
+
+                .box {
+                    width: 90vw;
+                }
             }
         }
+    }
+}
+
+@media (max-width: 330px) {
+    .home-page #maps {
+        grid-auto-columns: 90%;
+        column-gap: 0;
+        padding: 3rem 10px;
+    }
+}
+
+@media (max-height: 550px) {
+    .home-page
+        .home-page__main
+        .home-page__main__container
+        .home-page__main__layout
+        .box {
+        margin: 10vh;
+    }
+
+    #btnMaps {
+        display: none;
     }
 }
 </style>

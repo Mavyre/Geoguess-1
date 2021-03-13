@@ -10,6 +10,8 @@ module.exports = {
         'plugin:prettier/recommended',
     ],
     globals: {
+        launchQueue: 'readonly',
+        google: 'readonly',
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
     },
@@ -19,6 +21,7 @@ module.exports = {
     },
     plugins: ['vue'],
     rules: {
+        'no-console': 'warn',
         semi: ['error', 'always'],
     },
     overrides: [
